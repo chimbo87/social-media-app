@@ -2,6 +2,19 @@ import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 
+const getUserProfile = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username })
+      .select("-password")
+      .select("-updated");
+    if (!user) return res.status(400).json({ message: "User not found" });
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    console.log("Error in getUserProfile:", err.message);
+  }
+};
 const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
@@ -76,7 +89,7 @@ const followUnFollowUser = async (req, res) => {
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user._id);
 
-    if (id === req.user._id)
+    if (id === req.user._id.toString())
       return res
         .status(400)
         .json({ message: "you cannont follow/ unfollow yourself" });
@@ -107,7 +120,10 @@ const updateUser = async (req, res) => {
     let userToUpdate = await User.findById(userId);
     if (!userToUpdate)
       return res.status(400).json({ message: "User not found" });
-
+    if (req.params.id !== userId.toString())
+      return res
+        .status(400)
+        .json({ message: "you cannot update other user's profile" });
     if (password) {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -129,4 +145,11 @@ const updateUser = async (req, res) => {
   }
 };
 
-export { signupUser, loginUser, logoutUser, updateUser, followUnFollowUser };
+export {
+  signupUser,
+  loginUser,
+  getUserProfile,
+  logoutUser,
+  updateUser,
+  followUnFollowUser,
+};

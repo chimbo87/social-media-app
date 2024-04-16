@@ -4,7 +4,7 @@ import connectDB from "./db/connectDB.js";
 import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/userRoutes.js"
-
+import postRouter from "./routes/postRoutes.js"
 dotenv.config();
 connectDB();
 const app = express();
@@ -16,6 +16,7 @@ app.use(cookieParser());
 
 //Routes
 
-app.use("/api/users",userRoutes)
+app.use("/api/users",userRoutes);
+app.use("/api/posts",postRouter)
 
 app.listen(PORT, ()=>console.log(`Server started at http://localhost:${PORT}`));
