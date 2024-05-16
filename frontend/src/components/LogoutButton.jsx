@@ -3,6 +3,7 @@ import React from "react";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/UserAtom";
 import useShowToast from "../hooks/useShowToast";
+import { FiLogOut } from "react-icons/fi";
 
 const LogoutButton = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -28,13 +29,13 @@ const LogoutButton = () => {
   };
   return (
     <Button
-      position={"foxed"}
+      position={"fixed"}
       top={"30px"}
       right={"30px"}
       size={"sm"}
       onClick={handleLogout}
     >
-      Logout
+     <FiLogOut size={20}/>
     </Button>
   );
 };
