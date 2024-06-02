@@ -13,7 +13,7 @@ import {
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/UserAtom";
 import { useRef, useState } from "react";
-import usePreviewimg from "../hooks/usePreviewimg";
+import usePreviewing from "../hooks/usePreviewing";
 import useShowToast from "../hooks/useShowToast";
 
 export default function UpdateProfilePage() {
@@ -27,18 +27,38 @@ export default function UpdateProfilePage() {
   });
   const fileRef = useRef(null);
   const showToast = useShowToast();
-  const { handleImageChange, imgUrl } = usePreviewimg();
+  const { handleImageChange, imgUrl } = usePreviewing();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Updating user with data:", { ...inputs, profilePic: imgUrl });
     try {
-      console.log(inputs)
+      const res = await fetch(`/api/users/update/${user._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
+      });
+
+      if (!res.ok) {
+        // If the response is not ok, throw an error
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update profile");
+      }
+
+      const data = await res.json();
+      console.log("here is the data", data);
+      showToast("Success", "Profile updated successfully", "success");
+      setUser(data);
     } catch (error) {
-      showToast("Error", error, "error");
+      console.error("Error:", error);
+      showToast("Error", error.message, "error");
     }
   };
+
   return (
     <form onSubmit={handleSubmit}>
-      {" "}
       <Flex align={"center"} justify={"center"} my={6}>
         <Stack
           spacing={4}
@@ -106,14 +126,14 @@ export default function UpdateProfilePage() {
               type="email"
             />
           </FormControl>
-          <FormControl >
+          <FormControl>
             <FormLabel>Bio</FormLabel>
             <Input
               value={inputs.bio}
               onChange={(e) => setInputs({ ...inputs, bio: e.target.value })}
               placeholder="Your Bio"
               _placeholder={{ color: "gray.500" }}
-              type="email"
+              type="text"
             />
           </FormControl>
           <FormControl>
