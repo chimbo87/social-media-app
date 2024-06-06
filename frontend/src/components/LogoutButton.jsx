@@ -8,6 +8,7 @@ import { FiLogOut } from "react-icons/fi";
 const LogoutButton = () => {
   const setUser = useSetRecoilState(userAtom);
   const showToast = useShowToast();
+
   const handleLogout = async () => {
     try {
       const res = await fetch("/api/users/logout", {
@@ -17,16 +18,19 @@ const LogoutButton = () => {
         },
       });
       const data = await res.json();
-      console.log(data);
-      if (data.error) {
+
+      if (res.ok) {
+        showToast("Success", "Logged out successfully", "success");
+        localStorage.removeItem("user-threads");
+        setUser(null);
+      } else {
         showToast("Error", data.error, "error");
       }
-      localStorage.removeItem("user-threads");
-      setUser(null);
     } catch (error) {
-      console.log(error);
+      showToast("Error", error.message, "error");
     }
   };
+
   return (
     <Button
       position={"fixed"}
@@ -35,7 +39,7 @@ const LogoutButton = () => {
       size={"sm"}
       onClick={handleLogout}
     >
-     <FiLogOut size={20}/>
+      <FiLogOut size={20} />
     </Button>
   );
 };

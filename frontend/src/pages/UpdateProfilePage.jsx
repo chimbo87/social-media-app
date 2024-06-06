@@ -31,7 +31,7 @@ export default function UpdateProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updating user with data:", { ...inputs, profilePic: imgUrl });
+
     try {
       const res = await fetch(`/api/users/update/${user._id}`, {
         method: "PUT",
@@ -40,19 +40,16 @@ export default function UpdateProfilePage() {
         },
         body: JSON.stringify({ ...inputs, profilePic: imgUrl }),
       });
-
-      if (!res.ok) {
-        // If the response is not ok, throw an error
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to update profile");
-      }
-
       const data = await res.json();
-      console.log("here is the data", data);
-      showToast("Success", "Profile updated successfully", "success");
-      setUser(data);
+      
+      if (res.ok) {
+        showToast("Success", "Profile updated successfully", "success");
+        setUser(data);
+        localStorage.setItem("user-threads", JSON.stringify(data));
+      } else {
+        showToast("Error", data.error, "error");
+      }
     } catch (error) {
-      console.error("Error:", error);
       showToast("Error", error.message, "error");
     }
   };

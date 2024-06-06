@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Flex,
   Menu,
   MenuButton,
@@ -14,8 +15,20 @@ import { Link } from "react-router-dom";
 import { FaInstagram } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
 import { useToast } from "@chakra-ui/react";
-const UserHeader = () => {
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/UserAtom";
+import { Link as RouterLink } from "react-router-dom";
+import { useState } from "react";
+import useShowToast from "../hooks/useShowToast";
+
+const UserHeader = ({ user }) => {
   const toast = useToast();
+  const currentUser = useRecoilValue(userAtom);
+  const [following, setFollowing] = useState(
+    user.followers.includes(currentUser._id)
+  );
+  console.log(following)
+  const showToast = useShowToast();
   const copyURL = () => {
     const currentURL = window.location.href;
     navigator.clipboard.writeText(currentURL).then(() => {
@@ -27,15 +40,34 @@ const UserHeader = () => {
       });
     });
   };
+  const handleclickFollowUnfollow = async () => {
+    try {
+      const res = await fetch(`/api/users/follow/${user._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application",
+        },
+      });
+      const data = await res.json();
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+      setFollowing(!following);
+      console.log(data)
+    } catch (error) {
+      useShowToast("Error", error, "error");
+    }
+  };
   return (
     <VStack gap={4} alignItems={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
         <Box>
           <Text fontSize={"2xl"} fontWeight={"bold"}>
-            Archford Chimbo
+            {user.name}
           </Text>
           <Flex gap={2} alignItems={"center"}>
-            <Text fontSize={"sm"}>archychimbo</Text>
+            <Text fontSize={"sm"}> {user.username}</Text>
             <Text
               fontSize={"xs"}
               bg={"gray.dark"}
@@ -51,13 +83,31 @@ const UserHeader = () => {
           </Flex>
         </Box>
         <Box>
-          <Avatar name="Achy Chimbo" src="/person.jpeg" size={"xl"} />
+          {user.profilePic && (
+            <Avatar name={user.name} src={user.profilePic} size={"xl"} />
+          )}
+          {!user.profilePic && (
+            <Avatar
+              name={user.name}
+              src="https://bit.ly/broken-link"
+              size={"xl"}
+            />
+          )}
         </Box>
       </Flex>
-      <Text>Co-found, execute chairman and CEO of Meta Platforms</Text>
+      <Text> {user.bio}</Text>
+      {currentUser._id === user._id && (
+        <Link as={RouterLink} to="/update">
+          <Button size={"sm"}>Update Profile</Button>
+        </Link>
+      )}
+      {currentUser._id !== user._id && (
+        <Button size={"sm"} onClick={handleclickFollowUnfollow}>{following ? "Unfollow" : "Follow"}
+        </Button>
+      )}
       <Flex w={"full"} justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text color={"gray.light"}>3.5 followers</Text>
+          <Text color={"gray.light"}>{user.followers.length} Followers</Text>
           <Box w="1" h="1" bg={"gray.light"} borderRadius={"full"}></Box>
           <Link color={"gray.light"}>Instagram.com</Link>
         </Flex>
@@ -72,8 +122,8 @@ const UserHeader = () => {
               </Box>
             </MenuButton>
             <Portal>
-              <MenuList bg={"gray.dark"} >
-                <MenuItem bg={"gray.dark" } onClick={copyURL}>
+              <MenuList bg={"gray.dark"}>
+                <MenuItem bg={"gray.dark"} onClick={copyURL}>
                   Copy link
                 </MenuItem>
               </MenuList>
