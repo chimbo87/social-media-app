@@ -1,8 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
-import {v2 as cloudinary} from "cloudinary";
-
+import { v2 as cloudinary } from "cloudinary";
 
 const getUserProfile = async (req, res) => {
   const { username } = req.params;
@@ -13,16 +12,17 @@ const getUserProfile = async (req, res) => {
     if (!user) return res.status(400).json({ error: "User not found" });
     res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({error: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in getUserProfile:", err.message);
   }
 };
+
 const signupUser = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
     const user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
-      return res.status(400).json({ error: "user already exist" });
+      return res.status(400).json({ error: "User already exists" });
     }
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -46,7 +46,7 @@ const signupUser = async (req, res) => {
         profilePic: newUser.profilePic,
       });
     } else {
-      res.status(400).json({error: "Invalid user data" });
+      res.status(400).json({ error: "Invalid user data" });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -58,20 +58,23 @@ const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
+
+    if (!user)
+      return res.status(400).json({ error: "Invalid username or password!" });
+
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if (!user || !isPasswordCorrect)
-      return res
-        .status(400)
-        .json({ error: "Invalid username or password !" });
+    if (!isPasswordCorrect)
+      return res.status(400).json({ error: "Invalid username or password!" });
+
     generateTokenAndSetCookie(user._id, res);
     res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       username: user.username,
-      bio:user.bio,
-      profilePic:user.profilePic,
+      bio: user.bio,
+      profilePic: user.profilePic,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -82,7 +85,7 @@ const loginUser = async (req, res) => {
 const logoutUser = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 1 });
-    res.status(200).json({ error: "User logged out successfully" });
+    res.status(200).json({ message: "User logged out successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in logging out:", err.message);
@@ -98,47 +101,49 @@ const followUnFollowUser = async (req, res) => {
     if (id === req.user._id.toString())
       return res
         .status(400)
-        .json({ error: "you cannont follow/ unfollow yourself" });
+        .json({ error: "You cannot follow/unfollow yourself" });
     if (!userToModify || !currentUser)
-      return res.status(400).json({ error: "user not found" });
+      return res.status(400).json({ error: "User not found" });
 
     const isFollowing = currentUser.following.includes(id);
 
     if (isFollowing) {
       await User.findByIdAndUpdate(id, { $pull: { followers: req.user.id } });
       await User.findByIdAndUpdate(req.user.id, { $pull: { following: id } });
-      res.status(200).json({ error: "user unfollowed" });
+      res.status(200).json({ message: "User unfollowed" });
     } else {
       await User.findByIdAndUpdate(id, { $push: { followers: req.user.id } });
       await User.findByIdAndUpdate(req.user.id, { $push: { following: id } });
-      await res.status(200).json({ error: "user followed" });
+      res.status(200).json({ message: "User followed" });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in followUnFollowUser:", err.message);
   }
 };
+
 const updateUser = async (req, res) => {
-  const { name, email, username, password,  bio } = req.body;
-  let {profilePic}= req.body;
+  const { name, email, username, password, bio } = req.body;
+  let { profilePic } = req.body;
   const userId = req.user._id;
 
   try {
     let userToUpdate = await User.findById(userId);
-    if (!userToUpdate)
-      return res.status(400).json({error: "User not found" });
+    if (!userToUpdate) return res.status(400).json({ error: "User not found" });
     if (req.params.id !== userId.toString())
       return res
         .status(400)
-        .json({error: "you cannot update other user's profile" });
+        .json({ error: "You cannot update another user's profile" });
     if (password) {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
       userToUpdate.password = hashedPassword;
     }
-    if(profilePic){
-      if(User.profilePic){
-        await cloudinary.uploader.destroy(User.profilePic.split("/").pop().split(".")[0])
+    if (profilePic) {
+      if (userToUpdate.profilePic) {
+        await cloudinary.uploader.destroy(
+          userToUpdate.profilePic.split("/").pop().split(".")[0]
+        );
       }
       const uploadedResponse = await cloudinary.uploader.upload(profilePic);
       profilePic = uploadedResponse.secure_url;
@@ -152,7 +157,10 @@ const updateUser = async (req, res) => {
 
     await userToUpdate.save();
 
-    res.status(200).json({ error: "User updated successfully" });
+    // Remove password field from the user object before sending it back
+    userToUpdate.password = null;
+
+    res.status(200).json(userToUpdate);
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in updateUser:", err.message);
