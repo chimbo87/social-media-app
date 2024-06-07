@@ -27,8 +27,9 @@ const UserHeader = ({ user }) => {
   const [following, setFollowing] = useState(
     user.followers.includes(currentUser._id)
   );
-  console.log(following)
+  console.log(following);
   const showToast = useShowToast();
+  const [updating, setUpdating]= useState(false);
   const copyURL = () => {
     const currentURL = window.location.href;
     navigator.clipboard.writeText(currentURL).then(() => {
@@ -41,6 +42,12 @@ const UserHeader = ({ user }) => {
     });
   };
   const handleclickFollowUnfollow = async () => {
+    if(!currentUser){
+      showToast("Error", "Please login to follow", "error");
+      return;
+    }
+    if (updating) return;
+    setUpdating(true);
     try {
       const res = await fetch(`/api/users/follow/${user._id}`, {
         method: "POST",
@@ -53,10 +60,19 @@ const UserHeader = ({ user }) => {
         showToast("Error", data.error, "error");
         return;
       }
+      if (following) {
+        showToast("Success", `Unfollowed ${user.name}`, "success");
+        user.followers.pop();
+      } else {
+        showToast("Success", `Followed ${user.name}`, "success");
+        user.followers.push(currentUser._id);
+      }
       setFollowing(!following);
-      console.log(data)
+      console.log(data);
     } catch (error) {
       useShowToast("Error", error, "error");
+    }finally{
+      setUpdating(false);
     }
   };
   return (
@@ -102,7 +118,8 @@ const UserHeader = ({ user }) => {
         </Link>
       )}
       {currentUser._id !== user._id && (
-        <Button size={"sm"} onClick={handleclickFollowUnfollow}>{following ? "Unfollow" : "Follow"}
+        <Button size={"sm"} onClick={handleclickFollowUnfollow} isLoading={updating}>
+          {following ? "Unfollow" : "Follow"}
         </Button>
       )}
       <Flex w={"full"} justifyContent={"space-between"}>
