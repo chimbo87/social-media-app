@@ -20,7 +20,7 @@ function usePreviewing() {
     }
   };
 
-  return { handleImageChange, imgUrl };
+  return { handleImageChange, imgUrl, setImgUrl};
 }
 
 export default usePreviewing;
