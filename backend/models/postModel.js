@@ -1,4 +1,3 @@
-import { text } from "express";
 import mongoose from "mongoose";
 
 const postSchema = mongoose.Schema({
@@ -15,7 +14,7 @@ const postSchema = mongoose.Schema({
     type: String,
   },
   likes: {
-    type:[mongoose.Schema.Types.ObjectId],
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "User",
     default: [],
   },
@@ -30,15 +29,15 @@ const postSchema = mongoose.Schema({
         type: String,
         required: true,
       },
-      userProfilePic:{
-        type:String,
+      userProfilePic: {
+        type: String,
       },
-      username:{
-        type: String
-      }
+      username: {
+        type: String,
+      },
     },
   ],
-}, {timestamps:true});
+}, { timestamps: true });
 
 const Post = mongoose.model("Post", postSchema);
 
