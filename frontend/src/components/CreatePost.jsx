@@ -65,6 +65,8 @@ function CreatePost() {
   }
   showToast("Success", "Post created successfully", "success")
   onClose()
+  setPostText("");
+  setImgUrl("");
  }catch(error){
   showToast("Error".error,"error")
  }finally{

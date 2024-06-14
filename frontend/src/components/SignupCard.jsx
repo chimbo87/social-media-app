@@ -55,7 +55,7 @@ export default function SignupCard() {
         return;
       }
       localStorage.setItem("user-threads", JSON.stringify(data));
-    setUser(data);
+      setUser(data);
     } catch (error) {
       console.log(error);
     }
@@ -63,11 +63,7 @@ export default function SignupCard() {
   return (
     <Flex align={"center"} justify={"center"}>
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
-        {/* <Stack align={"center"}>
-          <Heading fontSize={"4xl"} textAlign={"center"}>
-            Sign up
-          </Heading>
-        </Stack> */}
+      
         <Box
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.dark")}

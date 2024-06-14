@@ -1,22 +1,59 @@
-import { Button, Flex } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import userAtom from "../atoms/UserAtom"; // Ensure this path is correct
+import { Button, Flex, Spinner } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import useShowToast from "../hooks/useShowToast";
+import Post from "../components/Post";
 
 const HomePage = () => {
-  const currentUser = useRecoilValue(userAtom);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const showToast = useShowToast();
 
-  // Check if currentUser is available
-  if (!currentUser) {
-    return <div>Loading...</div>; // Or some other loading indicator
-  }
+  useEffect(() => {
+    const getFeedPosts = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/posts/feed");
+        const data = await res.json();
+        const feedPosts = data.feedPosts
+
+        console.log("Fetched Data:", feedPosts); // Log the fetched data
+
+        if (feedPosts.error) {
+          showToast("Error", feedPosts.error, "error");
+          return;
+        }
+
+        if (Array.isArray(feedPosts)) {
+          setPosts(feedPosts);
+        } else {
+          showToast("Error", "Invalid data format", "error");
+        }
+      } catch (error) {
+        showToast("Error", error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getFeedPosts();
+  },[showToast]);
 
   return (
-    <Link to={`/${currentUser.username}`}>
-      <Flex w={"full"} justifyContent={"center"}>
-        <Button mx={"auto"}>Visit Profile Page</Button>
-      </Flex>
-    </Link>
+    <>
+      {!loading && posts.length === 0 && <h1>Follow some users to see feed</h1>}
+      {loading && (
+        <Flex justify="center">
+          <Spinner size="xl" />
+        </Flex>
+      )}
+      {!loading && posts.length > 0 && (
+        <div>
+          {posts.map((post) => (
+            <Post key={post._id} post={post} postedBy={post.postedBy} />
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 
