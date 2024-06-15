@@ -20,6 +20,7 @@ const UserPage = () => {
           showToast("Error", data.error, "error");
           return;
         }
+      
         setUser(data); // Update user state with the fetched data
       } catch (error) {
         showToast("Error", error, "error");

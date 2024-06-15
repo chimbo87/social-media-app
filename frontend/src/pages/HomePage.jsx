@@ -14,17 +14,16 @@ const HomePage = () => {
       try {
         const res = await fetch("/api/posts/feed");
         const data = await res.json();
-        const feedPosts = data.feedPosts
+      
+        // console.log("Fetched Data:", data); 
 
-        console.log("Fetched Data:", feedPosts); // Log the fetched data
-
-        if (feedPosts.error) {
-          showToast("Error", feedPosts.error, "error");
+        if ( data.error) {
+          showToast("Error",  data.error, "error");
           return;
         }
 
-        if (Array.isArray(feedPosts)) {
-          setPosts(feedPosts);
+        if (Array.isArray( data)) {
+          setPosts( data);
         } else {
           showToast("Error", "Invalid data format", "error");
         }
