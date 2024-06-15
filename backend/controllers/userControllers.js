@@ -5,19 +5,31 @@ import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
 
 const getUserProfile = async (req, res) => {
-  const {query} = req.params;
+  const { query } = req.params;
+  // console.log("Query received:", query); // Debugging log
+
   try {
-   let user;
-   if(mongoose.Types.ObjectId.isValid(query)){
-    user = await User.findOne({_id:query}).select("-password").select("updatedAt");
-   }else{
-    user = await User.findOne({postedBy:query}).select("-password").select("-updated");
-   }
-    if (!user) return res.status(400).json({ error: "User not found here"});
+    let user;
+
+    // Check if the query is a valid ObjectId or a username
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      user = await User.findById(query).select("-password -updatedAt");
+    } else {
+      user = await User.findOne({ username: query }).select(
+        "-password -updatedAt"
+      );
+    }
+
+    if (!user) {
+      console.log("User not found"); // Debugging log
+      return res.status(404).json({ error: "User not found" });
+    }
+
+   
     res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-    console.log("Error in getUserProfile:", err.message);
+    console.error("Error in getUserProfile:", err.message);
+    res.status(500).json({ error: "Server error" });
   }
 };
 

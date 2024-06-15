@@ -38,6 +38,7 @@ const createPost = async (req, res) => {
   }
 };
 
+
 const getPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
