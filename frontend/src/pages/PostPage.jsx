@@ -41,7 +41,7 @@ const PostPage = () => {
       </Box>
 
       <Flex gap={3} my={3}>
-        <Actions liked={liked} toggleLike={toggleLike} />
+        <Actions liked={liked} toggleLike={toggleLike}/>
       </Flex>
 
       <Flex>
