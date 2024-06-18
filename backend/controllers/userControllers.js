@@ -6,11 +6,10 @@ import mongoose from "mongoose";
 
 const getUserProfile = async (req, res) => {
   const { query } = req.params;
-  // console.log("Query received:", query); // Debugging log
+
 
   try {
     let user;
-
     // Check if the query is a valid ObjectId or a username
     if (mongoose.Types.ObjectId.isValid(query)) {
       user = await User.findById(query).select("-password -updatedAt");

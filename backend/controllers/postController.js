@@ -45,7 +45,7 @@ const getPost = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: "Post not found !" });
     }
-    res.status(200).json({ post });
+    res.status(200).json(post);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -59,6 +59,10 @@ const deletePost = async (req, res) => {
     }
     if (post.postedBy.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: "Unauthorized !" });
+    }
+    if(post.img){
+      const imgId = post.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId);
     }
     await Post.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Post deleted successfully !" });
@@ -130,6 +134,34 @@ const getFeedPosts = async (req, res) => {
   }
 };
 
+
+const getUserPosts = async (req, res) => {
+  const {username} = req.params;
+  if (!username) {
+    console.error("Username parameter is missing");
+    return res.status(400).json({ error: "Username parameter is required"});
+  }
+
+  try {
+    const user = await User.findOne({ username }).exec();
+    if (!user) {
+      console.error("User not found for username:", username);
+      return res.status(404).json({ error: "User not found" });
+    }
+
+   
+    const posts = await Post.find({ postedBy: user._id }).sort({ createdAt: -1 }).exec();
+    console.log("Posts found:", posts.length);
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
 export {
   createPost,
   getPost,
@@ -137,4 +169,5 @@ export {
   getFeedPosts,
   likeUnLikePost,
   replyToPost,
+  getUserPosts
 };
