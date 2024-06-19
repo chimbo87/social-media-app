@@ -1,36 +1,22 @@
 import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
-import UserPost from "../components/UserPost";
 import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
-import Post from "../components/Post"
+import Post from "../components/Post";
+import useGetUserProfile from "../hooks/useGetUserProfile";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom";
 
 const UserPage = () => {
-  const [user, setUser] = useState(null);
+  const { user, loading } = useGetUserProfile(); // Destructure correctly
   const { username } = useParams();
   const showToast = useShowToast();
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState([]);
+
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [fetchingPosts, setFetchingPosts] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await fetch(`/api/users/profile/${username}`);
-        const data = await res.json();
-        if (data.error) {
-          showToast("Error", data.error, "error");
-          return;
-        }
-
-        setUser(data); // Update user state with the fetched data
-      } catch (error) {
-        showToast("Error", error.message, "error");
-      } finally {
-        setLoading(false);
-      }
-    };
     const getPosts = async () => {
       setFetchingPosts(true);
       try {
@@ -45,9 +31,10 @@ const UserPage = () => {
         setFetchingPosts(false);
       }
     };
-    getUser();
+
     getPosts();
-  }, [username, showToast]);
+  }, [username, showToast, setPosts]);
+console.log("posts is here and it is recoil state", posts)
   if (!user && loading) {
     return (
       <Flex justifyContent={"center"}>
@@ -57,6 +44,7 @@ const UserPage = () => {
   }
 
   if (!user && !loading) return <h1>User not found</h1>;
+
   return (
     <>
       <UserHeader user={user} />
@@ -66,7 +54,7 @@ const UserPage = () => {
           <Spinner size={"xl"} />
         </Flex>
       )}
-      {posts.map((post)=> (
+      {posts.map((post) => (
         <Post key={post._id} post={post} postedBy={post.postedBy}/>
       ))}
     </>

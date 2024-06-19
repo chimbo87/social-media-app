@@ -19,9 +19,10 @@ import { AiOutlineRetweet } from "react-icons/ai";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { BsChat } from "react-icons/bs";
 import { BsSend } from "react-icons/bs";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/UserAtom";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
 
 const Actions = ({ post }) => {
   const user = useRecoilValue(userAtom);
@@ -29,7 +30,7 @@ const Actions = ({ post }) => {
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiking, setIsLiking] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
-  const [postState, setPostState] = useState(post); // Changed to postState to avoid conflict with prop
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [reply, setReply] = useState("");
   const showToast = useShowToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -41,7 +42,7 @@ const Actions = ({ post }) => {
     if (isLiking) return;
     setIsLiking(true);
     try {
-      const res = await fetch("/api/posts/like/" + postState._id, {
+      const res = await fetch("/api/posts/like/" + post._id, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,9 +50,22 @@ const Actions = ({ post }) => {
       });
       const data = await res.json();
       if (data.error) return showToast("Error", data.error, "error");
-      console.log(data);
+
       setLiked(!liked);
       setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          return {
+            ...p,
+            likes: liked
+              ? p.likes.filter((id) => id !== user._id)
+              : [...p.likes, user._id],
+          };
+        }
+        return p;
+      });
+      setPosts(updatedPosts);
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {
@@ -70,7 +84,7 @@ const Actions = ({ post }) => {
     if (isReplying) return;
     setIsReplying(true);
     try {
-      const res = await fetch("/api/posts/reply/" + postState._id, {
+      const res = await fetch("/api/posts/reply/" + post._id, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,14 +96,28 @@ const Actions = ({ post }) => {
       if (data.error) {
         return showToast("Error", data.error, "error");
       }
-      setPostState({
-        ...postState,
-        replies: [...postState.replies, data.reply],
+
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          return {
+            ...p,
+            replies: [
+              ...p.replies,
+              {
+                userId: user._id,
+                text: reply,
+                userProfilePic: user.profilePic,
+                username: user.username,
+              },
+            ],
+          };
+        }
+        return p;
       });
+      setPosts(updatedPosts);
       showToast("Success", "Reply posted successfully", "success");
       setReply(""); // Clear the reply input after successful reply
       onClose(); // Close the modal after reply
-      console.log(data);
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {
@@ -111,7 +139,7 @@ const Actions = ({ post }) => {
       </Flex>
       <Flex gap={2} alignItems={"center"}>
         <Text color={"gray.light"} fontSize="sm">
-          {postState.replies.length} replies
+          {post.replies.length} replies
         </Text>
         <Box w={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
         <Text color={"gray.light"} fontSize="sm">
@@ -135,9 +163,13 @@ const Actions = ({ post }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" size={"sm"} mr={3}
-            isLoading={isReplying}
-             onClick={handleReply}>
+            <Button
+              colorScheme="blue"
+              size={"sm"}
+              mr={3}
+              isLoading={isReplying}
+              onClick={handleReply}
+            >
               Reply
             </Button>
           </ModalFooter>

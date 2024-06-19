@@ -62,7 +62,7 @@ export default function SignupCard() {
   };
   return (
     <Flex align={"center"} justify={"center"}>
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+      <Stack spacing={8} mx={"auto"} maxW={"lg"}>
       
         <Box
           rounded={"lg"}

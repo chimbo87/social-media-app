@@ -21,9 +21,10 @@ import { useRef, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import usePreviewImg from "../hooks/usePreviewing";
 import { TiImageOutline } from "react-icons/ti";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/UserAtom";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
 
 const MAX_CHAR = 500;
 function CreatePost() {
@@ -35,6 +36,7 @@ function CreatePost() {
   const user = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [loading, setLoading]= useState(false)
+  const [posts, setPosts] = useRecoilState(postsAtom);
 
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -64,6 +66,7 @@ function CreatePost() {
     return
   }
   showToast("Success", "Post created successfully", "success")
+  setPosts([data, ...posts]);
   onClose()
   setPostText("");
   setImgUrl("");
@@ -82,8 +85,9 @@ function CreatePost() {
         right={10}
         bg={useColorModeValue("gray.300", "gray.700")}
         onClick={onOpen}
+        size={{base: "sm", sm: "md"}}
       >
-        <GoPlus /> Post
+        <GoPlus /> 
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
