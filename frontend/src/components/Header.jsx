@@ -22,6 +22,7 @@ import { GrMoreVertical } from "react-icons/gr";
 import { RiSearchLine } from "react-icons/ri";
 import userAtom from "../atoms/UserAtom";
 import useLogout from "../hooks/useLogout";
+import { HiOutlineChatAlt2 } from "react-icons/hi";
 
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -33,8 +34,18 @@ const Header = () => {
 
   return (
     <>
-      <Flex alignItems={"center"} justifyContent={user ? "space-between" : "center"} mt={5}>
-        <Text fontWeight={"bold"} color={"blue"} padding={2} borderRadius={5} fontSize={25}>
+      <Flex
+        alignItems={"center"}
+        justifyContent={user ? "space-between" : "center"}
+        mt={5}
+      >
+        <Text
+          fontWeight={700}
+          color={"blue"}
+          padding={2}
+          borderRadius={5}
+          fontSize={25}
+        >
           AFC Church
         </Text>
         {user && (
@@ -82,6 +93,9 @@ const Header = () => {
         </Button>
         {user && (
           <Flex alignContent={"center"} gap={4}>
+            <Link as={RouterLink} to={"/chat"}>
+              <HiOutlineChatAlt2 size={24} />
+            </Link>
             <Link as={RouterLink} to={`/${user.username}`}>
               <FiUser size={24} />
             </Link>
