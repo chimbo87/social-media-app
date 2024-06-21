@@ -31,7 +31,7 @@ const createPost = async (req, res) => {
     }
     const newPost = new Post({ postedBy, text, img });
     await newPost.save();
-    res.status(201).json({ message: "Post created successfully !", newPost });
+    res.status(201).json(newPost);
   } catch (err) {
     res.status(500).json({ message: err.message });
     console.log(err);
@@ -111,7 +111,7 @@ const replyToPost = async (req, res) => {
     post.replies.push(reply);
     await post.save();
 
-    res.status(200).json({ message: "Reply added succesfully", post });
+    res.status(200).json( reply );
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -151,7 +151,7 @@ const getUserPosts = async (req, res) => {
 
    
     const posts = await Post.find({ postedBy: user._id }).sort({ createdAt: -1 }).exec();
-    console.log("Posts found:", posts.length);
+   
     return res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching user posts:", error);

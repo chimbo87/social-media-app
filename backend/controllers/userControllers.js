@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Post from "../models/postModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
@@ -171,6 +172,17 @@ const updateUser = async (req, res) => {
     userToUpdate.bio = bio || userToUpdate.bio;
 
     await userToUpdate.save();
+
+    await Post.updateMany(
+      {"replies.userId":userId},
+      {
+        $set:{
+          "replies.$[reply].username":userToUpdate.username,
+          "replies.$[reply].profilePic":userToUpdate.profilePic
+        }
+      },
+      {arrayFilters:[{"reply.userId":userId}]}
+    )
 
     // Remove password field from the user object before sending it back
     userToUpdate.password = null;
