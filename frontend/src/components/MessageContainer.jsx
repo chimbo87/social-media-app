@@ -1,5 +1,16 @@
-import { Avatar, Divider, Flex,Text,Image, useColorModeValue } from "@chakra-ui/react";
+import {
+  Avatar,
+  Divider,
+  Flex,
+  Text,
+  Image,
+  useColorModeValue,
+  Skeleton,
+  SkeletonCircle,
+} from "@chakra-ui/react";
 import React from "react";
+import Message from "./Message";
+import MessageInput from "./MessageInput";
 
 function MessageContainer() {
   return (
@@ -16,11 +27,44 @@ function MessageContainer() {
           johndoe <Image src="/verified.png" w={5} h={4} ml={1} />
         </Text>
       </Flex>
-      <Divider/>
-      <Flex flexDir={"column"} gap={4} my={4}
-      height={"400px"} overflowY={"scroll"}>
 
+      <Divider />
+      <Flex
+        flexDir={"column"}
+        gap={4}
+        my={4}
+        height={"400px"}
+        p={2}
+        overflowY={"auto"}
+      >
+        {false &&
+          [...Array(5)].map((_, i) => (
+            <Flex
+              key={i}
+              gap={2}
+              alignItems={"center"}
+              p={1}
+              borderRadius={"md"}
+              alignSelf={i % 2 === 0 ? "flex-start" : "flex-end"}
+            >
+              {i % 2 === 0 && <SkeletonCircle size={7} />}
+              <Flex flexDir={"column"} gap={2}>
+                <Skeleton h="8px" w="250px" />
+                <Skeleton h="8px" w="250px" />
+                <Skeleton h="8px" w="250px" />
+              </Flex>
+              {i % 2 !== 0 && <SkeletonCircle size={7} />}
+            </Flex>
+          ))}
+          <Message ownMessage={true}/>
+          <Message ownMessage={false}/>
+          <Message ownMessage={false}/>
+          <Message ownMessage={true}/>
+          <Message ownMessage={false}/>
+          <Message ownMessage={false}/>
+          <Message ownMessage={false}/>
       </Flex>
+      <MessageInput/>
     </Flex>
   );
 }
