@@ -22,7 +22,7 @@ const UserPage = () => {
       try {
         const res = await fetch(`/api/posts/user/${username}`);
         const data = await res.json();
-        console.log(data);
+     
         setPosts(data);
       } catch (error) {
         showToast("Error", error.message, "error");
@@ -34,7 +34,7 @@ const UserPage = () => {
 
     getPosts();
   }, [username, showToast, setPosts]);
-console.log("posts is here and it is recoil state", posts)
+
   if (!user && loading) {
     return (
       <Flex justifyContent={"center"}>

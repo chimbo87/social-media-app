@@ -18,6 +18,7 @@ import { useRecoilValue } from "recoil";
 import { Link as RouterLink } from "react-router-dom";
 import { TbHomeStar } from "react-icons/tb";
 import { FiUser, FiLogOut } from "react-icons/fi";
+import { CgMenuRightAlt } from "react-icons/cg";
 import { GrMoreVertical } from "react-icons/gr";
 import { RiSearchLine } from "react-icons/ri";
 import userAtom from "../atoms/UserAtom";
@@ -68,7 +69,8 @@ const Header = () => {
               colorScheme="teal"
               onClick={onOpen}
             >
-              <GrMoreVertical size={20} />
+              {/* <GrMoreVertical size={20} /> */}
+              <CgMenuRightAlt  size={20} />
             </Text>
           </Flex>
         )}
