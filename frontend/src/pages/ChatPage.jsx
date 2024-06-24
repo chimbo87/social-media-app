@@ -14,14 +14,18 @@ import Conversation from "../components/Conversation";
 import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
+import UserAtom from "../atoms/UserAtom";
 
 function ChatPage() {
   const showToast = useShowToast();
+  const currentUser = useRecoilValue(UserAtom);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
-  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom); // Correct hook usage
+  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
+  const [searchText, setSearchText] = useState("");
+  const [searchingUser, setSearchingUser] = useState(false);
 
   useEffect(() => {
     const getConversations = async () => {
@@ -32,7 +36,6 @@ function ChatPage() {
           showToast("Error", data.error, "error");
           return;
         }
-        console.log(data);
         setConversations(data);
       } catch (error) {
         showToast("Error", error.message, "error");
@@ -42,6 +45,59 @@ function ChatPage() {
     };
     getConversations();
   }, [showToast, setConversations]);
+
+  const handleConversationSearch = async (e) => {
+    e.preventDefault();
+    setSearchingUser(true);
+    try {
+      const res = await fetch(`/api/users/profile/${searchText}`);
+      const searchUser = await res.json();
+      if (searchUser.error) {
+        showToast("Error", searchUser.error, "error");
+        return;
+      }
+      if (!searchUser._id) {
+        showToast("Error", "User not found", "error");
+        return;
+      }
+      if (searchUser._id === currentUser._id) {
+        showToast("Error", "You cannot message yourself", "error");
+        return;
+      }
+      const existingConversation = conversations.find(
+        (conversation) => conversation.participants[0]?._id === searchUser._id
+      );
+      if (existingConversation) {
+        setSelectedConversation({
+          _id: existingConversation._id,
+          userId: searchUser._id,
+          username: searchUser.username,
+          profilePic: searchUser.profilePic,
+        });
+        return;
+      }
+      const mockConversation = {
+        mock: true,
+        lastMessage: {
+          text: "",
+          sender: "",
+        },
+        _id: Date.now(),
+        participants: [
+          {
+            _id: searchUser._id,
+            username: searchUser.username,
+            profilePic: searchUser.profilePic,
+          },
+        ],
+      };
+      setConversations((prevConv) => [...prevConv, mockConversation]);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setSearchingUser(false);
+    }
+  };
 
   return (
     <Box
@@ -83,10 +139,10 @@ function ChatPage() {
           >
             Your Conversations
           </Text>
-          <form>
+          <form onSubmit={handleConversationSearch}>
             <Flex alignContent={"center"} gap={2}>
-              <Input placeholder="Search for the user" />
-              <Button size={"sm"}>
+              <Input placeholder="Search for the user" onChange={(e) => setSearchText(e.target.value)} />
+              <Button size={"sm"} type="submit" isLoading={searchingUser}>
                 <FiSearch />
               </Button>
             </Flex>
@@ -138,4 +194,3 @@ function ChatPage() {
 }
 
 export default ChatPage;
-

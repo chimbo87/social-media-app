@@ -18,31 +18,36 @@ import UserAtom from "../atoms/UserAtom";
 
 function MessageContainer() {
   const showToast = useShowToast();
-  const[selectedConversation, setSelectedConversation]= useRecoilState(selectedConversationAtom)
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [messages, setMessages] = useState([]);
   const currentUser = useRecoilValue(UserAtom);
-  useEffect(()=>{
-  const getMessages = async ()=>{
-    setLoadingMessages(true)
-    setMessages([])
-    try{
-const res = await fetch(`/api/messages/${selectedConversation.userId}`)
-    const data = await res.json();
-    if(data.error){
-      showToast("Error",data.error, "error");
-      return;
-    }
-    console.log("the user dataa",data)
-    setMessages(data)
-}catch(error){
-      showToast("Error ",error.message, "error");
-    }finally{
-      setLoadingMessages(false);
-    }
-  }
-  getMessages();
-  },[showToast, selectedConversation.userId]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      setLoadingMessages(true);
+      setMessages([]);
+      try {
+        if(selectedConversation.mock)return;
+        const res = await fetch(`/api/messages/${selectedConversation.userId}`);
+        const data = await res.json();
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
+        }
+        console.log("the user data", data);
+        setMessages(data);
+
+      } catch (error) {
+        showToast("Error ", error.message, "error");
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+    getMessages();
+  }, [showToast, selectedConversation.userId]);
   return (
     <Flex
       flex="70"
@@ -54,7 +59,8 @@ const res = await fetch(`/api/messages/${selectedConversation.userId}`)
       <Flex w={"full"} h={12} alignItems={"center"} gap={2}>
         <Avatar src={selectedConversation.profilePicture} size={"sm"} />
         <Text display={"flex"} alignItems={"center"}>
-         {selectedConversation.username} <Image src="/verified.png" w={5} h={4} ml={1} />
+          {selectedConversation.username}{" "}
+          <Image src="/verified.png" w={5} h={4} ml={1} />
         </Text>
       </Flex>
 
@@ -86,14 +92,16 @@ const res = await fetch(`/api/messages/${selectedConversation.userId}`)
               {i % 2 !== 0 && <SkeletonCircle size={7} />}
             </Flex>
           ))}
-     {!loadingMessages && (
-      messages.map((message)=>(
-        <Message key={message._id} message={message} ownMessage={currentUser._id === message.sender}/>
-      ))
-     )}
-       
+        {!loadingMessages &&
+          messages.map((message) => (
+            <Message
+              key={message._id}
+              message={message}
+              ownMessage={currentUser._id === message.sender}
+            />
+          ))}
       </Flex>
-      <MessageInput/>
+      <MessageInput setMessages={setMessages} />
     </Flex>
   );
 }
