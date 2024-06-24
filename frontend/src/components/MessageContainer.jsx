@@ -12,9 +12,10 @@ import React, { useEffect, useState } from "react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { selectedConversationAtom } from "../atoms/messagesAtom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import UserAtom from "../atoms/UserAtom";
+import {useSocket} from '../context/SocketContext';
 
 function MessageContainer() {
   const showToast = useShowToast();
@@ -24,6 +25,30 @@ function MessageContainer() {
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [messages, setMessages] = useState([]);
   const currentUser = useRecoilValue(UserAtom);
+  const {socket} = useSocket();
+  const setConversations = useSetRecoilState(conversationsAtom)
+
+useEffect(()=>{
+  socket.on("newMessage", (message)=>{
+    setMessages((prevMessages)=>[...prevMessages, message]);
+
+    setConversations((prev)=>{
+      const updatedConversation = prev.map(conversation => {
+        if(conversation._id === selectedConversation._id){
+          return {
+            ...conversation,
+             lastMessage:{
+              text:message.text,
+              sender:message.sender,
+             }}
+        }
+        return conversation;
+      })
+      return updatedConversation;
+    });
+  });
+  return () => socket.off("newMessage");
+},[socket]);
 
   useEffect(() => {
     const getMessages = async () => {

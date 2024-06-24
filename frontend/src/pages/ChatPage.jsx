@@ -17,6 +17,7 @@ import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import UserAtom from "../atoms/UserAtom";
+import { useSocket } from "../context/SocketContext";
 
 function ChatPage() {
   const showToast = useShowToast();
@@ -26,6 +27,7 @@ function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
   const [searchText, setSearchText] = useState("");
   const [searchingUser, setSearchingUser] = useState(false);
+  const { socket, onLineUsers } = useSocket();
 
   useEffect(() => {
     const getConversations = async () => {
@@ -169,6 +171,7 @@ function ChatPage() {
             conversations.map((conversation) => (
               <Conversation
                 key={conversation._id}
+                isOnLine={conversation.participants[0] && onLineUsers.includes(conversation.participants[0]._id)}
                 conversation={conversation}
               />
             ))}

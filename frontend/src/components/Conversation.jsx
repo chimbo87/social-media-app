@@ -15,7 +15,7 @@ import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import userAtom from "../atoms/UserAtom";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
-function Conversation({ conversation }) {
+function Conversation({ conversation, isOnLine}) {
   const user = conversation.participants && conversation.participants[0];
   const currentUser = useRecoilValue(userAtom);
   const lastMessage = conversation.lastMessage || {};
@@ -55,7 +55,7 @@ function Conversation({ conversation }) {
           }}
           src={user.profilePic || ""}
         >
-          <AvatarBadge boxSize="1em" bg="green.500" />
+         {isOnLine ?  <AvatarBadge boxSize="1em" bg="green.500" />: ""}
         </Avatar>
       </WrapItem>
       <Stack direction={"column"} fontSize={"sm"}>
