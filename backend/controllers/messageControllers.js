@@ -1,5 +1,6 @@
 import Conversation from "../models/conversationModel.js";
 import Message from "../models/messageModel.js";
+import { getRecipientSocketId } from "../socket/socket.js";
 
 async function sendMessage(req, res) {
   try {
@@ -34,6 +35,10 @@ async function sendMessage(req, res) {
         }
       })
     ]);
+    const recipientSocketId = getRecipientSocketId(recipientId);
+   if(recipientSocketId){
+    io.to(recipientSocketId).emit("newMessage", newMessage)
+   }
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -44,15 +49,15 @@ async function getMessages(req, res){
     const {otherUserId}= req.params;
     const userId = req.user._id;
     try{
-        console.log("User ID:", userId);
-        console.log("Other User ID:", otherUserId);
+        // console.log("User ID:", userId);
+        // console.log("Other User ID:", otherUserId);
 
         const conversation = await Conversation.findOne({
             participants: { $all: [userId, otherUserId] }
         });
 
         if(!conversation){
-            console.log("Conversation not found");
+            // console.log("Conversation not found");
             return res.status(404).json({error:"Conversation not found"})
         }
 
@@ -79,8 +84,13 @@ try{
         path: "participants",
         select: "username profilePic"
     });
+    //remove the current user from the particiapnt array
+    conversations.forEach(conversation => {
+      conversation.participants = conversation.participants.filter(
+        participant => participant._id.toString() !== userId.toString()
+      )
+    })
     res.status(200).json(conversations);
-
 }catch(error){
     res.status(500).json({error: error.message});
 }
