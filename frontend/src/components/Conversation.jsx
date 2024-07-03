@@ -7,8 +7,11 @@ import {
   Stack,
   WrapItem,
   useColorModeValue,
-  useColorMode
+  useColorMode,
+  Box,
+  Img
 } from "@chakra-ui/react";
+import { CiImageOn } from "react-icons/ci";
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
@@ -63,12 +66,14 @@ function Conversation({ conversation, isOnLine}) {
           {user.username} <Image src="/verified.png" w={5} h={4} ml={1} />
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
-          {currentUser._id === lastMessage.sender && (
-            <IoCheckmarkDoneOutline size={16} />
-          )}
+          {currentUser._id === lastMessage.sender ? (
+            <Box color={lastMessage.seen ? "blue.400" : ""}>
+              <IoCheckmarkDoneOutline size={16} />
+            </Box>
+          ): ""}
           {lastMessage.text && lastMessage.text.length > 10
             ? lastMessage.text.substring(0, 15) + "..."
-            : lastMessage.text}
+            : lastMessage.text || <CiImageOn size={16} />}
         </Text>
       </Stack>
     </Flex>

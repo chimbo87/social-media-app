@@ -15,7 +15,10 @@ import { GiConversation } from "react-icons/gi";
 import MessageContainer from "../components/MessageContainer";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
+import {
+  conversationsAtom,
+  selectedConversationAtom,
+} from "../atoms/messagesAtom";
 import UserAtom from "../atoms/UserAtom";
 import { useSocket } from "../context/SocketContext";
 
@@ -24,10 +27,32 @@ function ChatPage() {
   const currentUser = useRecoilValue(UserAtom);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
-  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
+  const [selectedConversation, setSelectedConversation] = useRecoilState(
+    selectedConversationAtom
+  );
   const [searchText, setSearchText] = useState("");
   const [searchingUser, setSearchingUser] = useState(false);
   const { socket, onLineUsers } = useSocket();
+
+  useEffect(() => {
+    socket?.on("messageSeen", ({ conversationId }) => {
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === conversationId) {
+            return {
+              ...conversation,
+              lastMessage: {
+                ...conversation.lastMessage,
+                seen: true,
+              },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
+    });
+  }, [socket, setConversations]);
 
   useEffect(() => {
     const getConversations = async () => {
@@ -143,7 +168,10 @@ function ChatPage() {
           </Text>
           <form onSubmit={handleConversationSearch}>
             <Flex alignContent={"center"} gap={2}>
-              <Input placeholder="Search for the user" onChange={(e) => setSearchText(e.target.value)} />
+              <Input
+                placeholder="Search for the user"
+                onChange={(e) => setSearchText(e.target.value)}
+              />
               <Button size={"sm"} type="submit" isLoading={searchingUser}>
                 <FiSearch />
               </Button>
@@ -171,7 +199,10 @@ function ChatPage() {
             conversations.map((conversation) => (
               <Conversation
                 key={conversation._id}
-                isOnLine={conversation.participants[0] && onLineUsers.includes(conversation.participants[0]._id)}
+                isOnLine={
+                  conversation.participants[0] &&
+                  onLineUsers.includes(conversation.participants[0]._id)
+                }
                 conversation={conversation}
               />
             ))}
