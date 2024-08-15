@@ -1,7 +1,11 @@
-import userAtom from "../atoms/userAtom";
+
 import { useSetRecoilState } from "recoil";
 import useShowToast from "./useShowToast";
 
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 const useLogout = () => {
 	const setUser = useSetRecoilState(userAtom);
 	const showToast = useShowToast();
