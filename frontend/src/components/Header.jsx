@@ -5,7 +5,7 @@ import { RxAvatar } from "react-icons/rx";
 import { Link as RouterLink } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import useLogout from "../hooks/useLogout";
-import authScreenAtom from "../atoms/authAtom";
+
 import { BsFillChatQuoteFill } from "react-icons/bs";
 import { MdOutlineSettings } from "react-icons/md";
 
@@ -13,11 +13,17 @@ const userAtom = atom({
 	key: "userAtom",
 	default: JSON.parse(localStorage.getItem("user-threads")),
   });
+
+  const authScreenAtom = atom({
+	key: "authScreenAtom",
+	default: "login",
+  });
+
 const Header = () => {
 	const { colorMode, toggleColorMode } = useColorMode();
 	const user = useRecoilValue(userAtom);
 	const logout = useLogout();
-	const setAuthScreen = useSetRecoilState(authScreenAtom);
+	const authScreenState = useRecoilValue(authScreenAtom);
 
 	return (
 		<Flex justifyContent={"space-between"} mt={6} mb='12'>
