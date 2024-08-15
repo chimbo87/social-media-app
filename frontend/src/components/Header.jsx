@@ -1,6 +1,5 @@
 import { Button, Flex, Image, Link, useColorMode } from "@chakra-ui/react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import userAtom from "../atoms/userAtom";
+import { useRecoilValue, atom, RecoilRoot } from "recoil";
 import { AiFillHome } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
 import { Link as RouterLink } from "react-router-dom";
@@ -10,6 +9,10 @@ import authScreenAtom from "../atoms/authAtom";
 import { BsFillChatQuoteFill } from "react-icons/bs";
 import { MdOutlineSettings } from "react-icons/md";
 
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 const Header = () => {
 	const { colorMode, toggleColorMode } = useColorMode();
 	const user = useRecoilValue(userAtom);
