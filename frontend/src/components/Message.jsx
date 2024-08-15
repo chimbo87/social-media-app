@@ -3,6 +3,7 @@ import { selectedConversationAtom } from "../atoms/messagesAtom";
 import { useRecoilValue } from "recoil";
 import { BsCheck2All } from "react-icons/bs";
 import { useState } from "react";
+import { atom } from "recoil"
 
 const userAtom = atom({
 	key: "userAtom",

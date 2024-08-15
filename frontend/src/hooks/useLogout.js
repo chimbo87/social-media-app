@@ -1,6 +1,7 @@
 
 import { useSetRecoilState } from "recoil";
 import useShowToast from "./useShowToast";
+import { atom } from "recoil"; 
 
 const userAtom = atom({
 	key: "userAtom",

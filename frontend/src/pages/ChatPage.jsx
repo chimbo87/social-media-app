@@ -8,6 +8,7 @@ import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import { useSocket } from "../context/SocketContext";
+import { atom } from "recoil";
 
 const userAtom = atom({
 	key: "userAtom",

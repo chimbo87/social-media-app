@@ -13,7 +13,7 @@ import {
 import { useRecoilState, useRecoilValue } from "recoil";
 import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
-
+import { atom } from "recoil"
 
 const userAtom = atom({
 	key: "userAtom",

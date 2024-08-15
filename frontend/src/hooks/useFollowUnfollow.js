@@ -1,12 +1,15 @@
 import { useState } from "react";
 import useShowToast from "./useShowToast";
 import { useRecoilValue } from "recoil";
+import { atom } from "recoil";
+
 
 
 const userAtom = atom({
 	key: "userAtom",
 	default: JSON.parse(localStorage.getItem("user-threads")),
-  });
+});
+
 const useFollowUnfollow = (user) => {
 	const currentUser = useRecoilValue(userAtom);
 	const [following, setFollowing] = useState(user.followers.includes(currentUser?._id));

@@ -8,7 +8,7 @@ import { CgMoreO } from "react-icons/cg";
 import { useRecoilValue } from "recoil";
 import { Link as RouterLink } from "react-router-dom";
 import useFollowUnfollow from "../hooks/useFollowUnfollow";
-
+import { atom } from "recoil"
 
 const userAtom = atom({
 	key: "userAtom",

@@ -9,12 +9,17 @@ import { formatDistanceToNow } from "date-fns";
 import { useRecoilState, useRecoilValue, atom } from "recoil";
 import { DeleteIcon } from "@chakra-ui/icons";
 
+
 // Define the atom directly in this file
 const postsAtom = atom({
   key: "postsAtom",
   default: [],
 });
 
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+});
 const PostPage = () => {
   const { user, loading } = useGetUserProfile();
   const [posts, setPosts] = useRecoilState(postsAtom);

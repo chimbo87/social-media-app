@@ -17,6 +17,7 @@ import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
 import useShowToast from "../hooks/useShowToast";
+import { atom } from "recoil"
 
 const authScreenAtom = atom({
 	key: "authScreenAtom",

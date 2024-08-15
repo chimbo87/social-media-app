@@ -4,7 +4,7 @@ import useShowToast from "../hooks/useShowToast";
 import Post from "../components/Post";
 import { useRecoilState } from "recoil";
 import SuggestedUsers from "../components/SuggestedUsers";
-
+import { atom } from "recoil";
 
 const postsAtom = atom({
 	key: "postsAtom",

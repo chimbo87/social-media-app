@@ -23,7 +23,7 @@ import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
 import { useRecoilState, useRecoilValue } from "recoil";
 import useShowToast from "../hooks/useShowToast";
-
+import { atom } from "recoil"
 import { useParams } from "react-router-dom";
 
 const MAX_CHAR = 500;

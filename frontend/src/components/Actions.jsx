@@ -17,13 +17,16 @@ import {
 import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import useShowToast from "../hooks/useShowToast";
-
+import { atom } from "recoil"
 
 const postsAtom = atom({
 	key: "postsAtom",
 	default: [],
   });
-  
+  const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+});
 const Actions = ({ post }) => {
 	const user = useRecoilValue(userAtom);
 	const [liked, setLiked] = useState(post.likes.includes(user?._id));
