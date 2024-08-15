@@ -11,10 +11,14 @@ import {
 	useColorModeValue,
 } from "@chakra-ui/react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import userAtom from "../atoms/userAtom";
 import { BsCheck2All, BsFillImageFill } from "react-icons/bs";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 
+
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 const Conversation = ({ conversation, isOnline }) => {
 	const user = conversation.participants[0];
 	const currentUser = useRecoilValue(userAtom);

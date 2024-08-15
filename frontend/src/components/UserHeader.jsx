@@ -6,10 +6,14 @@ import { Button, useToast } from "@chakra-ui/react";
 import { BsInstagram } from "react-icons/bs";
 import { CgMoreO } from "react-icons/cg";
 import { useRecoilValue } from "recoil";
-import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
 import useFollowUnfollow from "../hooks/useFollowUnfollow";
 
+
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 const UserHeader = ({ user }) => {
 	const toast = useToast();
 	const currentUser = useRecoilValue(userAtom); // logged in user
