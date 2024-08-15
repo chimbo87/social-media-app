@@ -12,10 +12,15 @@ import {
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { useRecoilState } from "recoil";
-import userAtom from "../atoms/userAtom";
+
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
 
+
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 export default function UpdateProfilePage() {
 	const [user, setUser] = useRecoilState(userAtom);
 	const [inputs, setInputs] = useState({
