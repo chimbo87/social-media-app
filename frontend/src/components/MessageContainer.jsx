@@ -4,7 +4,6 @@ import MessageInput from "./MessageInput";
 import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue, useSetRecoilState, atom } from "recoil";
-import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext.jsx";
 import messageSound from "../assets/sounds/message.mp3";
 
@@ -13,7 +12,10 @@ const conversationsAtom = atom({
   key: "conversationsAtom",
   default: [],
 });
-
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+});
 const selectedConversationAtom = atom({
   key: "selectedConversationAtom",
   default: {
