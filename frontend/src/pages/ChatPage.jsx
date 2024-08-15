@@ -7,9 +7,12 @@ import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
-import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
 
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
 const ChatPage = () => {
 	const [searchingUser, setSearchingUser] = useState(false);
 	const [loadingConversations, setLoadingConversations] = useState(true);
