@@ -1,10 +1,13 @@
 import { Avatar, Box, Flex, Image, Skeleton, Text } from "@chakra-ui/react";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 import { useRecoilValue } from "recoil";
-import userAtom from "../atoms/userAtom";
 import { BsCheck2All } from "react-icons/bs";
 import { useState } from "react";
 
+const userAtom = atom({
+	key: "userAtom",
+	default: JSON.parse(localStorage.getItem("user-threads")),
+});
 const Message = ({ ownMessage, message }) => {
 	const selectedConversation = useRecoilValue(selectedConversationAtom);
 	const user = useRecoilValue(userAtom);

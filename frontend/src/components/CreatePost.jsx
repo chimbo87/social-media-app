@@ -23,13 +23,18 @@ import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
 import { useRecoilState, useRecoilValue } from "recoil";
 import useShowToast from "../hooks/useShowToast";
-import postsAtom from "../atoms/postsAtom";
+
 import { useParams } from "react-router-dom";
 
 const MAX_CHAR = 500;
 const userAtom = atom({
 	key: "userAtom",
 	default: JSON.parse(localStorage.getItem("user-threads")),
+  });
+
+  const postsAtom = atom({
+	key: "postsAtom",
+	default: [],
   });
 const CreatePost = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
